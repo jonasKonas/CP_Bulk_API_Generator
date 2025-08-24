@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Point API Script Generator</title>
+    <style>
+        textarea { width: 100%; height: 200px; }
+        pre { background: #f4f4f4; padding: 10px; }
+    </style>
+    <script>
+        function copyToClipboard() {
+            var copyText = document.getElementById("output");
+            navigator.clipboard.writeText(copyText.textContent);
+            alert("Copied to clipboard!");
+        }
+    </script>
+</head>
+<body>
+    <h1>Check Point API Script Generator</h1>
+    <form method="post">
+        Ticket Ref: <input type="text" name="ticket_ref" required><br>
+        Group Name: <input type="text" name="group_name" required><br>
+        <br>
+        Input Data (name and IP per line):<br>
+        <textarea name="input_data" required></textarea><br>
+        <input type="submit" value="Generate">
+    </form>
+    <br>
+    {% if output %}
+        <h2>Generated API Commands</h2>
+        <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        <pre id="output">{{ output }}</pre>
+    {% endif %}
+</body>
+</html>
