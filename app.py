@@ -29,11 +29,11 @@ def add_host_api():
             parts = line.split()
             if len(parts) == 2:
                 name, ip = parts
-                output += f'add host name "{name}" ip-address "{ip}" comments "SEP2:{ticket_ref}" groups.1 "{group_name}"\n'
+                output += f'add host name "{name}" ip-address "{ip}" comments "Ref:{ticket_ref}" groups.1 "{group_name}"\n'
             elif len(parts) == 1:
                 ip = parts[0]
                 name = f'H_{ip}'
-                output += f'add host name "{name}" ip-address "{ip}" comments "SEP2:{ticket_ref}" groups.1 "{group_name}"\n'
+                output += f'add host name "{name}" ip-address "{ip}" comments "Ref:{ticket_ref}" groups.1 "{group_name}"\n'
             else:
                 output += f"# Skipping invalid line: {line}\n"
 
