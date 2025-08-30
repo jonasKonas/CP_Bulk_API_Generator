@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+      <h1 class="display-5 fw-bold mb-4">About Check Point Bulk API Command Generator</h1>
+
+      <!-- Description -->
+      <p class="lead mb-4">
+        A practical Check Point API command generator for bulk operations. This tool is designed to help you quickly generate API commands for adding hosts and DNS objects. More tools will be added soon.
+      </p>
+
+      <!-- Warning -->
+      <div class="alert alert-warning" role="alert">
+        Please use this tool with caution. Always test your commands in a safe environment before applying them in production.
+      </div>
+
+      <!-- Usage Instructions -->
+      <div class="mb-4 text-start">
+        <h5>How to use:</h5>
+        <ul>
+          <li>Input hostnames, IPs, or domain objects in the form on the main page.</li>
+          <li>Use lines starting with <code>.</code> for DNS domain objects.</li>
+          <li>Single IPs will automatically generate a host name.</li>
+          <li>Use <code>name IP</code> format for explicit host definitions.</li>
+          <li>Check the "Is Sub-domain" checkbox if needed for domain objects.</li>
+        </ul>
+      </div>
+
+      <!-- Main Links -->
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4 mb-5">
+        <a href="https://sc1.checkpoint.com/documents/latest/APIs/#~v2%20" target="_blank" class="btn btn-primary btn-lg px-4 gap-3">
+          CP API Reference
+        </a>
+        <a href="https://github.com/jonasKonas/CP_Bulk_API_Generator" target="_blank" class="btn btn-outline-secondary btn-lg px-4">
+          GitHub Repo
+        </a>
+      </div>
+
+      <!-- Version and Contact -->
+      <p class="text-muted small">
+        Version 1.0.0 | Developed by Jonas Kiauleikis | <a href="mailto:your.email@example.com">Contact</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

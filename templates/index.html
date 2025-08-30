@@ -5,23 +5,57 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-8 text-center">
-      <!-- <h1 class="display-5 fw-bold text-body-emphasis mb-4">Check Point Bulk API Command Generator</h1> -->
       <p class="lead mb-4">
         A practical Check Point API command generator for bulk operations. More tools will be added soon.
       </p>
       <div class="alert alert-warning" role="alert">
         Please use this tool with caution. Always test your commands before applying them in production.
       </div>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+      
+      <!-- Main Links -->
+      <!-- <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4 mb-5">
         <a href="https://sc1.checkpoint.com/documents/latest/APIs/#~v2%20" target="_blank" class="btn btn-primary btn-lg px-4 gap-3">
           CP API Reference
         </a>
         <a href="https://github.com/jonasKonas/CP_Bulk_API_Generator" target="_blank" class="btn btn-outline-secondary btn-lg px-4">
           GitHub Repo
         </a>
+      </div> -->
+
+      <!-- Tool List -->
+      <h3 class="mb-4 mt-5">Available Tools</h3>
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col">
+          <div class="card h-100 border-primary">
+            <div class="card-body text-center">
+              <h5 class="card-title">Add Hosts / DNS objects</h5>
+              <p class="card-text">Generate API commands for adding new hosts or DNS domain objects to groups.</p>
+              <a href="{{ url_for('add_host_api') }}" class="btn btn-primary">Go</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card h-100 border-secondary">
+            <div class="card-body text-center">
+              <h5 class="card-title">Coming Soon...</h5>
+              <p class="card-text">More tools will be added here soon!</p>
+              <button class="btn btn-secondary" disabled>Coming Soon</button>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="col">
+          <div class="card h-100 border-secondary">
+            <div class="card-body text-center">
+              <h5 class="card-title">Coming Soon...</h5>
+              <p class="card-text">More tools will be added here soon!</p>
+              <button class="btn btn-secondary" disabled>Coming Soon</button>
+            </div>
+          </div> -->
+        </div>
       </div>
     </div>
   </div>
 </div>
+
 
 {% endblock %}
