@@ -1,8 +1,81 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file, redirect, url_for
 from datetime import datetime
-import os
+import pandas as pd
+import io
+
 
 app = Flask(__name__)
+
+# Weak protocols list
+WEAK_PROTOCOLS = ["HTTP", "FTP", "TELNET", "RDP", "POP3", "IMAP"]
+
+def classify_rules(df):
+    """
+    Takes DataFrame from Check Point CSV and classifies rules.
+    Expected columns: 'Name', 'Hits', 'Enabled', 'Services'
+    """
+    results = []
+
+    for _, row in df.iterrows():
+        rule = {
+            "name": row.get("Name", "Unnamed"),
+            "hits": row.get("Hits", 0),
+            "status": "Enabled" if str(row.get("Enabled", "True")).lower() == "true" else "Disabled",
+            "protocols": row.get("Services", ""),
+            "category": ""
+        }
+
+        hits = int(rule["hits"]) if str(rule["hits"]).isdigit() else 0
+
+        # Classify
+        if hits == 0:
+            rule["category"] = "Unused"
+        elif rule["status"] == "Disabled":
+            rule["category"] = "Disabled"
+        elif hits < 1000:
+            rule["category"] = "Low Hits"
+        elif hits > 1_000_000:
+            rule["category"] = "High Hits"
+
+        # Weak protocols check
+        for proto in WEAK_PROTOCOLS:
+            if proto.lower() in str(rule["protocols"]).lower():
+                rule["category"] = "Weak Protocol"
+                break
+
+        results.append(rule)
+
+    return results
+
+
+@app.route("/policy_review", methods=["GET", "POST"])
+def policy_review():
+    global classified_rules
+    classified_rules = None
+
+    if request.method == "POST":
+        file = request.files["csv_file"]
+        if file and file.filename.endswith(".csv"):
+            df = pd.read_csv(file)
+            classified_rules = classify_rules(df)
+
+    return render_template("policy_review.html", rules=classified_rules)
+
+
+@app.route("/download_policy", methods=["POST"])
+def download_policy():
+    if not classified_rules:
+        return redirect(url_for("policy_review"))
+
+    df = pd.DataFrame(classified_rules)
+
+    # Save to memory for download
+    output = io.BytesIO()
+    df.to_csv(output, index=False)
+    output.seek(0)
+
+    return send_file(output, mimetype="text/csv", as_attachment=True, download_name="classified_rules.csv")
+
 
 @app.route('/')
 def index():

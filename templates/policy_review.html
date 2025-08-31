@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Policy Review Tool</h2>
+
+    <!-- Upload Form -->
+    <form method="post" enctype="multipart/form-data" class="mb-4">
+        <div class="mb-3">
+            <input type="file" name="csv_file" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload & Review</button>
+    </form>
+
+    <!-- Results Table -->
+    {% if rules %}
+    <h3>Classified Rules</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Rule Name</th>
+                <th>Hits</th>
+                <th>Status</th>
+                <th>Protocols</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rule in rules %}
+            <tr>
+                <td>{{ rule.name }}</td>
+                <td>{{ rule.hits }}</td>
+                <td>{{ rule.status }}</td>
+                <td>{{ rule.protocols }}</td>
+                <td>{{ rule.category }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Download Results -->
+    <form method="post" action="{{ url_for('download_policy') }}">
+        <button type="submit" class="btn btn-success">Download Results</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
