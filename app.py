@@ -2,89 +2,116 @@ from flask import Flask, render_template, request, send_file, redirect, url_for
 from datetime import datetime
 import pandas as pd
 import io
+import csv
 
 
 app = Flask(__name__)
 
+
+#POLICY REVIEW TOOL
+
 # Weak protocols list
 WEAK_PROTOCOLS = ["HTTP", "FTP", "TELNET", "RDP", "POP3", "IMAP"]
 
+def safe_int(value):
+    """Convert CSV hits value to integer safely."""
+    try:
+        return int(str(value).replace(",", ""))
+    except ValueError:
+        # Handle textual zero
+        if str(value).strip().lower() == "zero":
+            return 0
+        return 0  # fallback for any other non-numeric value
+
 def classify_rules(df):
     """
-    Takes DataFrame from Check Point CSV and classifies rules.
-    Expected columns: 'Name', 'Hits', 'Enabled', 'Services'
+    Classifies rules while keeping all original columns.
+    Adds a new column 'Category'.
     """
     results = []
 
     for _, row in df.iterrows():
-        rule = {
-            "name": row.get("Name", "Unnamed"),
-            "hits": row.get("Hits", 0),
-            "status": "Enabled" if str(row.get("Enabled", "True")).lower() == "true" else "Disabled",
-            "protocols": row.get("Services", ""),
-            "category": ""
-        }
+        rule = row.to_dict()  # keep all original columns
 
-        hits = int(rule["hits"]) if str(rule["hits"]).isdigit() else 0
+        # Parse hits safely
+        hits = safe_int(rule.get("Hits", 0))
+        status = "Enabled" if str(rule.get("Enabled", "True")).lower() == "true" else "Disabled"
+        services = str(rule.get("Services & Applications", ""))
 
-        # Classify
+        # Default category
+        category = "Normal"
+
+        # Classify by hits and status
         if hits == 0:
-            rule["category"] = "Unused"
-        elif rule["status"] == "Disabled":
-            rule["category"] = "Disabled"
+            category = "Unused"
+        elif status == "Disabled":
+            category = "Disabled"
         elif hits < 1000:
-            rule["category"] = "Low Hits"
+            category = "Low Hits"
         elif hits > 1_000_000:
-            rule["category"] = "High Hits"
+            category = "High Hits"
 
-        # Weak protocols check
+        # Weak protocols check (match whole words only)
         for proto in WEAK_PROTOCOLS:
-            if proto.lower() in str(rule["protocols"]).lower():
-                rule["category"] = "Weak Protocol"
+            if f"{proto.lower()}" in [s.strip().lower() for s in services.replace(",", " ").split()]:
+                category = "Weak Protocol"
                 break
 
+        rule["Category"] = category
         results.append(rule)
 
     return results
 
+#DOWNLOAD_FUNCTION_FOR_POLICY_REVIEW
+# Global store for download
+classified_rules = None
 
 @app.route("/policy_review", methods=["GET", "POST"])
 def policy_review():
     global classified_rules
     classified_rules = None
+    results = None
 
     if request.method == "POST":
-        file = request.files["csv_file"]
+        file = request.files.get("csv_file")
         if file and file.filename.endswith(".csv"):
             df = pd.read_csv(file)
-            classified_rules = classify_rules(df)
+            results = classify_rules(df)
+            classified_rules = results  # store for download
 
-    return render_template("policy_review.html", rules=classified_rules)
-
+    return render_template("policy_review.html", rules=results)
 
 @app.route("/download_policy", methods=["POST"])
 def download_policy():
+    global classified_rules
     if not classified_rules:
-        return redirect(url_for("policy_review"))
+        return "No classified rules to download.", 400
 
     df = pd.DataFrame(classified_rules)
-
-    # Save to memory for download
     output = io.BytesIO()
     df.to_csv(output, index=False)
     output.seek(0)
 
-    return send_file(output, mimetype="text/csv", as_attachment=True, download_name="classified_rules.csv")
+    return send_file(
+        output,
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="classified_rules.csv"
+    )
 
 
+
+#LANDING PAGE
 @app.route('/')
 def index():
     return render_template('index.html', current_year=datetime.now().year)
 
+#ABOUT PAGE
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', current_year=datetime.now().year)
 
+#ADD HOST IN BULK TOOL
 @app.route('/add_host_api', methods=['GET', 'POST'])
 def add_host_api():
     output = ""

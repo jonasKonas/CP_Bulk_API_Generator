@@ -1,46 +1,58 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="container">
-    <h2>Policy Review Tool</h2>
+    <h2 class="mb-4">Policy Review Tool</h2>
 
-    <!-- Upload Form -->
-    <form method="post" enctype="multipart/form-data" class="mb-4">
-        <div class="mb-3">
-            <input type="file" name="csv_file" class="form-control" required>
+    <form method="POST" enctype="multipart/form-data" class="mb-4">
+        <div class="input-group">
+            <input type="file" name="csv_file" accept=".csv" class="form-control" required>
+            <button type="submit" class="btn btn-primary">Upload & Analyze</button>
         </div>
-        <button type="submit" class="btn btn-primary">Upload & Review</button>
     </form>
 
-    <!-- Results Table -->
     {% if rules %}
-    <h3>Classified Rules</h3>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Rule Name</th>
-                <th>Hits</th>
-                <th>Status</th>
-                <th>Protocols</th>
-                <th>Category</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for rule in rules %}
-            <tr>
-                <td>{{ rule.name }}</td>
-                <td>{{ rule.hits }}</td>
-                <td>{{ rule.status }}</td>
-                <td>{{ rule.protocols }}</td>
-                <td>{{ rule.category }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <h3>Classification Results</h3>
+        <form method="POST" action="{{ url_for('download_policy') }}">
+            <button type="submit" class="btn btn-success mb-3">Download Classified CSV</button>
+        </form>
 
-    <!-- Download Results -->
-    <form method="post" action="{{ url_for('download_policy') }}">
-        <button type="submit" class="btn btn-success">Download Results</button>
-    </form>
+    <div class="table-responsive" style="max-width: 100%;">
+        <table class="table table-striped table-bordered mt-3 table-sm w-100">
+            <thead class="table-dark">
+                <tr>
+                    {% for col in rules[0].keys() %}
+                        <th style="white-space: nowrap; width: {{ loop.length > 5 and '15%' or 'auto' }};">{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for rule in rules %}
+                <tr>
+                    {% for key, value in rule.items() %}
+                        <td style="overflow-wrap: anywhere; max-width: 200px;">
+                            {% if key == "Category" %}
+                                {% if value in ["Unused", "Weak Protocol", "High Hits"] %}
+                                    <span class="badge bg-danger">{{ value }}</span>
+                                {% elif value == "Disabled" %}
+                                    <span class="badge bg-warning text-dark">{{ value }}</span>
+                                {% elif value == "Low Hits" %}
+                                    <span class="badge bg-info text-dark">{{ value }}</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ value }}</span>
+                                {% endif %}
+                            {% else %}
+                                {{ value }}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
     {% endif %}
 </div>
 {% endblock %}
