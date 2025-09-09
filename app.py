@@ -8,6 +8,18 @@ import csv
 app = Flask(__name__)
 
 
+
+#LANDING PAGE
+@app.route('/')
+def index():
+    return render_template('index.html', current_year=datetime.now().year)
+
+#ABOUT PAGE
+@app.route('/about')
+def about():
+    return render_template('about.html', current_year=datetime.now().year)
+
+
 #POLICY REVIEW TOOL
 
 # Weak protocols list
@@ -66,7 +78,7 @@ def classify_rules(df):
 # Global store for download
 classified_rules = None
 
-@app.route("/policy_review", methods=["GET", "POST"])
+@app.route("/checkpoint/policy_review", methods=["GET", "POST"])
 def policy_review():
     global classified_rules
     classified_rules = None
@@ -79,8 +91,9 @@ def policy_review():
             results = classify_rules(df)
             classified_rules = results  # store for download
 
-    return render_template("policy_review.html", rules=results)
+    return render_template("/checkpoint/policy_review.html", rules=results)
 
+#Download reviewed rules
 @app.route("/download_policy", methods=["POST"])
 def download_policy():
     global classified_rules
@@ -100,19 +113,8 @@ def download_policy():
     )
 
 
-
-#LANDING PAGE
-@app.route('/')
-def index():
-    return render_template('index.html', current_year=datetime.now().year)
-
-#ABOUT PAGE
-@app.route('/about')
-def about():
-    return render_template('about.html', current_year=datetime.now().year)
-
 #ADD HOST IN BULK TOOL
-@app.route('/add_host_api', methods=['GET', 'POST'])
+@app.route('/checkpoint/add_host_api', methods=['GET', 'POST'])
 def add_host_api():
     output = ""
     if request.method == 'POST':
@@ -149,4 +151,4 @@ def add_host_api():
             else:
                 output += f"# Skipping invalid line: {line}\n"
 
-    return render_template('add_host_api.html', output=output)
+    return render_template('/checkpoint/add_host_api.html', output=output)
