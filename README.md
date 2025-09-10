@@ -1,7 +1,7 @@
-# Check Point API Commands Generator
+#  MonkeyUtil - Utility tool for Firewall and Network admins
 
 ## Description
 
-The **Check Point API Commands Generator** is a tool to generate specific Check Point SMS CLI API commands. More tools will be added soon.
+The **MonkeyUtil** main goal is be a shed for various tools for Firewall and Network administrator to help them create bulk commands to manage policies
 
 Please use this tool with caution. Always test your commands before applying them in production.
