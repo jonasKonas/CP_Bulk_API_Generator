@@ -23,7 +23,6 @@
                     <tr>
                         {% for col in rules[0].keys() %}
                             <th style="white-space: nowrap; width: {{ '15%' if loop.length > 5 else 'auto' }};">{{ col }}</th>
-
                         {% endfor %}
                     </tr>
                 </thead>
@@ -32,16 +31,21 @@
                     <tr>
                         {% for key, value in rule.items() %}
                             <td style="overflow-wrap: anywhere; max-width: 200px;">
-                                {% if key == "Category" %}
-                                    {% if value in ["Unused", "Weak Protocol", "High Hits"] %}
-                                        <span class="badge bg-danger">{{ value }}</span>
-                                    {% elif value == "Disabled" %}
-                                        <span class="badge bg-warning text-dark">{{ value }}</span>
-                                    {% elif value == "Low Hits" %}
-                                        <span class="badge bg-info text-dark">{{ value }}</span>
-                                    {% else %}
-                                        <span class="badge bg-success">{{ value }}</span>
-                                    {% endif %}
+                                {% if key == "Categories" %}
+                                    {% for cat in value.split(",") %}
+                                        {% set cat = cat.strip() %}
+                                        {% if cat == "Zero Hits" %}
+                                            <span class="badge bg-danger">{{ cat }}</span>
+                                        {% elif cat == "Any in Source/Destination" %}
+                                            <span class="badge bg-warning text-dark">{{ cat }}</span>
+                                        {% elif cat == "Weak Protocol" %}
+                                            <span class="badge bg-danger">{{ cat }}</span>
+                                        {% elif cat == "Disabled" %}
+                                            <span class="badge bg-secondary">{{ cat }}</span>
+                                        {% else %}
+                                            <span class="badge bg-success">{{ cat }}</span>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% else %}
                                     {{ value }}
                                 {% endif %}
